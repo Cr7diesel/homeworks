@@ -43,8 +43,8 @@ def test_all_course(client, course_factory, student_factory):
 def test_filter_course_id(client, course_factory, student_factory):
     students = student_factory(_quantity=10)
     courses = course_factory(_quantity=5, students=students)
-    url = reverse(f'courses-list') + f'?id={courses[1].id}'
-    response = client.get(url)
+    url = reverse(f'courses-list')
+    response = client.get(url, {'id': courses[1].id})
 
     assert response.status_code == 200
 
@@ -59,8 +59,8 @@ def test_filter_course_id(client, course_factory, student_factory):
 def test_filter_course_name(client, course_factory, student_factory):
     students = student_factory(_quantity=10)
     courses = course_factory(_quantity=5, students=students)
-    url = reverse(f'courses-list') + f'?name={courses[2].name}'
-    response = client.get(url)
+    url = reverse(f'courses-list')
+    response = client.get(url, {'name': courses[2].name})
 
     assert response.status_code == 200
 
@@ -73,9 +73,9 @@ def test_filter_course_name(client, course_factory, student_factory):
 
 @pytest.mark.django_db
 def test_create_course(client):
-    url = '/api/v1/courses/'
+    url = reverse(f'courses-list')
     count = Course.objects.count()
-    response = client.post(url, data={'name': 'course_1'})
+    response = client.post(url, {'name': 'course_1'})
 
     assert response.status_code == 201
 
@@ -88,9 +88,9 @@ def test_create_course(client):
 def test_update_course(client, course_factory, student_factory):
     students = student_factory(_quantity=10)
     course = course_factory(students=students)
-    url = '/api/v1/courses/' + f'{course.id}/'
+    url = reverse(f'courses-detail', kwargs={'pk': course.id})
 
-    response = client.patch(url, data={'name': 'course_2'})
+    response = client.patch(url, {'name': 'course_2'})
 
     assert response.status_code == 200
 
@@ -101,7 +101,7 @@ def test_update_course(client, course_factory, student_factory):
 def test_delete_course(client, course_factory, student_factory):
     students = student_factory(_quantity=10)
     course = course_factory(students=students)
-    url = '/api/v1/courses/' + f'{course.id}/'
+    url = reverse(f'courses-detail', kwargs={'pk': course.id})
 
     response = client.delete(url)
 
